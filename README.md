@@ -1,3 +1,5 @@
+## Warning
+Using premium unlock features may violate Telegram's Terms of Service. Use at your own risk.
 # TelePro
 An LSPosed module to enhance Telegram with privacy and premium features.
 
@@ -12,6 +14,7 @@ An LSPosed module to enhance Telegram with privacy and premium features.
 2. Download and install TelePro module.
 3. Activate module in LSPosed and select Telegram (org.telegram.messenger).
 4. Restart Telegram.
+   
 
 ## License
 MIT License
