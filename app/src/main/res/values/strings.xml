@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">TelePro</string>
     <string name="settings_title">TelePro Settings</string>
+    <string name="premium_toggle">Enable Premium Features</string>
 </resources>
