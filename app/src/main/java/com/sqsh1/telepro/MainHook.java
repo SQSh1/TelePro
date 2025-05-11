@@ -1,5 +1,7 @@
 package com.sqsh1.telepro;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -14,21 +16,32 @@ public class MainHook implements IXposedHookLoadPackage {
         }
         XposedBridge.log("TelePro: Hooked Telegram package");
 
-        // Hook isPremium to always return true
-        XposedHelpers.findAndHookMethod(
-            "org.telegram.messenger.UserConfig",
-            lpparam.classLoader,
-            "isPremium",
-            new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    param.setResult(true); // Force premium status
-                    XposedBridge.log("TelePro: Premium status enabled");
-                }
-            }
-        );
+        // Get SharedPreferences to check settings
+        SharedPreferences prefs = lpparam.appInfo != null ?
+            lpparam.appInfo.getSharedPreferences("TeleProPrefs", Context.MODE_PRIVATE) : null;
 
-        // Hook to hide online status (from previous code)
+        if (prefs == null) {
+            XposedBridge.log("TelePro: Failed to get SharedPreferences");
+            return;
+        }
+
+        // Hook isPremium only if enabled in settings
+        if (prefs.getBoolean("premium_enabled", true)) {
+            XposedHelpers.findAndHookMethod(
+                "org.telegram.messenger.UserConfig",
+                lpparam.classLoader,
+                "isPremium",
+                new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        param.setResult(true);
+                        XposedBridge.log("TelePro: Premium status enabled");
+                    }
+                }
+            );
+        }
+
+        // Hook to hide online status
         XposedHelpers.findAndHookMethod(
             "org.telegram.messenger.MessagesController",
             lpparam.classLoader,
@@ -37,7 +50,7 @@ public class MainHook implements IXposedHookLoadPackage {
             new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    param.setResult(null); // Prevent setting online status
+                    param.setResult(null);
                 }
             }
         );
