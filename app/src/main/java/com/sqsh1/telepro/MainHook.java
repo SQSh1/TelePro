@@ -14,7 +14,21 @@ public class MainHook implements IXposedHookLoadPackage {
         }
         XposedBridge.log("TelePro: Hooked Telegram package");
 
-        // Example: Hook method to hide online status
+        // Hook isPremium to always return true
+        XposedHelpers.findAndHookMethod(
+            "org.telegram.messenger.UserConfig",
+            lpparam.classLoader,
+            "isPremium",
+            new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    param.setResult(true); // Force premium status
+                    XposedBridge.log("TelePro: Premium status enabled");
+                }
+            }
+        );
+
+        // Hook to hide online status (from previous code)
         XposedHelpers.findAndHookMethod(
             "org.telegram.messenger.MessagesController",
             lpparam.classLoader,
